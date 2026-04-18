@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin Control Panel</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:linear-gradient(90deg,#d1d472,#59c7eb);
+text-align:center;
+}
+
+/* 🔙 BACK BUTTON */
+.back-btn{
+position:fixed;
+top:20px;
+left:20px;
+padding:8px 18px;
+background:#2a7be4;
+color:white;
+border:none;
+border-radius:6px;
+cursor:pointer;
+z-index:1000;
+}
+
+/* 👤 ADMIN BUTTON */
+.admin-btn{
+position:fixed;
+top:20px;
+right:20px;
+padding:8px 18px;
+background:#333;
+color:white;
+border:none;
+border-radius:20px;
+cursor:pointer;
+z-index:1000;
+}
+
+/* PROFILE */
+.profile-box{
+display:none;
+position:fixed;
+top:70px;
+right:20px;
+width:260px;
+background:#222;
+color:white;
+border-radius:15px;
+padding:20px;
+text-align:center;
+}
+
+.close{
+position:absolute;
+top:10px;
+right:12px;
+cursor:pointer;
+}
+
+.profile-box img{
+width:80px;
+height:80px;
+border-radius:50%;
+}
+
+/* TITLE */
+.title{
+margin-top:40px;
+font-size:32px;
+}
+
+/* BUTTONS */
+.center-box{
+margin-top:120px;
+display:flex;
+flex-direction:column;
+align-items:center;
+gap:20px;
+}
+
+.big-btn{
+color:white;
+width:280px;
+height:60px;
+font-size:18px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+}
+
+.blue{ background:#2a7be4; }
+.green{ background:#2e7d32; }
+.red{ background:#c62828; }
+.orange{ background:#ff9800; }
+.purple{ background:#6a1b9a; }
+
+/* ✅ VOTED BUTTON */
+.voted-btn{
+position:fixed;
+bottom:20px;
+right:20px;
+padding:10px 18px;
+background:#00c853;
+color:white;
+border:none;
+border-radius:8px;
+cursor:pointer;
+}
+
+/* PANEL */
+.voter-panel{
+position:fixed;
+bottom:70px;
+right:20px;
+width:300px;
+max-height:400px;
+overflow-y:auto;
+background:#3c4454;
+padding:15px;
+border-radius:10px;
+display:none;
+color:white;
+}
+
+.voter-item{
+background:#2c3e50;
+padding:10px;
+margin:8px 0;
+border-radius:6px;
+}
+ 
+table{
+width:100%;
+border-collapse:collapse;
+color:white;
+margin-top:10px;
+}
+
+th, td{
+border:1px solid #555;
+padding:8px;
+text-align:center;
+}
+
+th{
+background:#1e2a38;
+}
+
+tr:nth-child(even){
+background:#2c3e50;
+}
+
+</style>
+</head>
+
+<body onload="loadAdminProfile()">
+
+<button class="back-btn" onclick="window.location.href='index.html'">← Back</button>
+
+<button class="admin-btn" onclick="openProfile()">👤 Admin</button>
+
+<div class="profile-box" id="profileBox">
+<span class="close" onclick="closeProfile()">✖</span>
+<img src="https://via.placeholder.com/100" id="adminPhoto">
+<h3 id="adminName">Admin Name</h3>
+<p id="adminMobile">📱</p>
+</div>
+
+<h1 class="title">Admin Control Panel</h1>
+<hr>
+
+<div class="center-box">
+
+<button class="big-btn blue" onclick="location.href='candidate-register.html'">
+Register Candidate
+</button>
+
+<button class="big-btn purple" onclick="location.href='view-all-candidates.html'">
+View All Candidates
+</button>
+
+<button class="big-btn green" onclick="location.href='approved-candidates.html'">
+View Approved Candidates
+</button>
+
+<button class="big-btn red" onclick="location.href='rejected-candidates.html'">
+View Rejected Candidates
+</button>
+
+<button class="big-btn orange" onclick="location.href='download-result.html'">
+View All Result
+</button>
+
+</div>
+
+<!-- ✅ VOTED LIST BUTTON -->
+<button class="voted-btn" onclick="toggleVoterList()">📋 Voter List</button>
+
+<!-- PANEL -->
+<div class="voter-panel" id="voterPanel">
+<h3>Voter Details</h3>
+<div id="voterListData"></div>
+</div>
+
+<script>
+
+/* PROFILE */
+function openProfile(){
+document.getElementById("profileBox").style.display = "block";
+}
+
+function closeProfile(){
+document.getElementById("profileBox").style.display = "none";
+}
+
+/* LOAD ADMIN */
+function loadAdminProfile(){
+let admin = JSON.parse(localStorage.getItem("admin"));
+
+if(admin){
+document.getElementById("adminName").innerText = admin.name;
+document.getElementById("adminMobile").innerText = "📱 " + admin.mobile;
+
+if(admin.photo){
+document.getElementById("adminPhoto").src = admin.photo;
+}
+}
+}
+
+/* ✅ FIXED FUNCTION */
+function toggleVoterList(){
+
+let panel = document.getElementById("voterPanel");
+
+if(panel.style.display === "block"){
+panel.style.display = "none";
+return;
+}
+
+panel.style.display = "block";
+
+let voters = JSON.parse(localStorage.getItem("voters")) || [];
+
+let html = "";
+
+if(voters.length === 0){
+html = "<p>No voters yet</p>";
+}else{
+
+html = `
+<table>
+<tr>
+<th>SL No</th>
+<th>Name</th>
+<th>Aadhaar</th>
+</tr>
+`;
+
+voters.forEach((v, index)=>{
+html += `
+<tr>
+<td>${index + 1}</td>
+<td>${v.name}</td>
+<td>${v.aadhaar}</td>
+</tr>
+`;
+});
+
+html += `</table>`;
+}
+
+document.getElementById("voterListData").innerHTML = html;
+}
+
+</script>
+
+</body>
+</html>
