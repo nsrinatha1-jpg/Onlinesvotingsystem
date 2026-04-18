@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Register</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #e6e6e6;
+
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+/* 🔙 BACK BUTTON */
+.back-btn{
+position:fixed;
+top:20px;
+left:20px;
+padding:8px 18px;
+background:#2a7be4;
+color:white;
+border:none;
+border-radius:6px;
+cursor:pointer;
+font-size:14px;
+z-index:1000;
+}
+
+.back-btn:hover{
+background:#1d4fa3;
+}
+
+/* Header */
+header {
+    background: #2f66d0;
+    color: white;
+    text-align: center;
+    padding: 18px;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* Center container */
+.container {
+    margin: auto;
+    background: white;
+    padding: 30px;
+    width: 420px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    text-align: center;
+}
+
+/* Title */
+.container h2 {
+    margin-bottom: 25px;
+}
+
+/* Row */
+.row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+/* Inputs */
+input {
+    flex: 1;
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    outline: none;
+}
+
+/* Address */
+.centerInput {
+    width: 100%;
+    margin-top: 10px;
+}
+
+/* Upload */
+.upload-box {
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin-top: 10px;
+    border-radius: 6px;
+    background: #f9f9f9;
+    text-align: left;
+}
+
+/* Dropdown */
+select {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+/* Button */
+button {
+    margin-top: 15px;
+    padding: 12px;
+    width: 160px;
+    background: #2f66d0;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+button:hover {
+    background: #1d4fa3;
+}
+
+/* Link */
+a {
+    color: #2f66d0;
+    text-decoration: none;
+}
+</style>
+
+</head>
+
+<body>
+
+<button class="back-btn" onclick="window.location.href='index.html'">
+← Back
+</button>
+
+<header>Online Voting System</header>
+
+<div class="container">
+
+<h2>Admin Registration</h2>
+
+<div class="row">
+<input id="name" placeholder="Enter name">
+<input id="mobile" placeholder="Enter mobile">
+</div>
+
+<div class="row">
+<input id="password" type="password" placeholder="Password">
+<input id="confirm" type="password" placeholder="Confirm Password">
+</div>
+
+<input id="address" class="centerInput" placeholder="Address">
+
+<br>
+
+<div class="upload-box">
+Upload image:
+<input id="photo" type="file">
+</div>
+
+<br>
+
+<select id="role">
+<option value="admin">Admin</option>
+</select>
+
+<br>
+
+<button onclick="registerUser()">Register</button>
+
+<p>Already user? <a href="index.html">Login here</a></p>
+
+</div>
+
+<script>
+
+/* REGISTER FUNCTION */
+function registerUser(){
+
+let name = document.getElementById("name").value.trim();
+let mobile = document.getElementById("mobile").value.trim();
+let password = document.getElementById("password").value;
+let confirm = document.getElementById("confirm").value;
+let address = document.getElementById("address").value.trim();
+let photoInput = document.getElementById("photo");
+
+
+// ✅ VALIDATION
+if(name === "" || mobile === "" || password === "" || confirm === "" || address === ""){
+alert("Please fill all details");
+return;
+}
+
+if(password !== confirm){
+alert("Passwords do not match");
+return;
+}
+
+
+// ✅ IMAGE HANDLE
+let reader = new FileReader();
+
+reader.onload = function(){
+let photo = reader.result;
+
+// SAVE DATA
+let admin = {
+name,
+mobile,
+password,
+address,
+photo
+};
+
+localStorage.setItem("admin", JSON.stringify(admin));
+
+// SUCCESS
+alert("Registration Successful");
+
+// REDIRECT
+window.location.href = "index.html";
+};
+
+// if image selected
+if(photoInput.files.length > 0){
+reader.readAsDataURL(photoInput.files[0]);
+} else {
+// no image
+localStorage.setItem("admin", JSON.stringify({
+name,
+mobile,
+password,
+address,
+photo: ""
+}));
+
+alert("Registration Successful");
+window.location.href = "index.html";
+}
+
+}
+
+</script>
+
+</body>
+</html>

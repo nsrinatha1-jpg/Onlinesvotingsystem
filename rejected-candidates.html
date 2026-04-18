@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Rejected Candidates</title>
+
+<style>
+
+body{
+font-family:Arial;
+margin:0;
+background:linear-gradient(to right,#eef0ef,#e6f2e6);
+}
+
+/* 🔙 BACK BUTTON */
+.back-btn{
+position:fixed;
+top:20px;
+left:20px;
+padding:8px 18px;
+background:#2a7be4;
+color:white;
+border:none;
+border-radius:6px;
+cursor:pointer;
+font-size:14px;
+z-index:1000;
+}
+
+.back-btn:hover{
+background:#1c5fc1;
+}
+
+/* Title */
+h2{
+text-align:center;
+padding:20px;
+}
+
+/* 3-dot menu */
+.menu{
+position:absolute;
+top:20px;
+right:30px;
+font-size:22px;
+cursor:pointer;
+}
+
+.dropdown{
+display:none;
+position:absolute;
+top:50px;
+right:30px;
+background:white;
+box-shadow:0 0 10px rgba(0,0,0,0.2);
+border-radius:6px;
+overflow:hidden;
+}
+
+.dropdown button{
+display:block;
+width:120px;
+padding:6px;
+border:none;
+background:white;
+cursor:pointer;
+text-align:left;
+}
+
+.dropdown button:hover{
+background:#f0f0f0;
+}
+
+/* Card layout (like your reference) */
+.card{
+width:80%;
+margin:20px auto;
+background:#f5f5f5;
+padding:20px;
+border-radius:12px;
+box-shadow:0 5px 15px rgba(0,0,0,0.2);
+
+display:flex;
+align-items:center;
+gap:30px;
+position:relative;
+}
+
+/* Image left */
+.card img{
+width:100px;
+height:100px;
+border-radius:50%;
+object-fit:cover;
+}
+
+/* Details right */
+.details{
+text-align:left;
+}
+
+.details h3{
+margin:0 0 10px;
+}
+
+/* Checkbox hidden */
+.selectBox{
+display:none;
+position:absolute;
+top:15px;
+left:15px;
+transform:scale(1.2);
+}
+
+/* Show when active */
+.select-mode .selectBox{
+display:block;
+}
+
+/* Action bar */
+.action-bar{
+display:none;
+text-align:center;
+margin:20px;
+}
+
+.action-bar button{
+margin:5px;
+padding:10px 20px;
+border:none;
+border-radius:5px;
+cursor:pointer;
+}
+
+.delete-btn{ background:red; color:white; }
+.approve-btn{ background:green; color:white; }
+
+</style>
+
+</head>
+
+<body onload="loadRejected()">
+
+<button class="back-btn" onclick="window.location.href='admin.html'">
+← Back
+</button>
+
+<h2>Rejected Candidates</h2>
+
+<!-- MENU -->
+<div class="menu" onclick="toggleMenu()">⋮</div>
+
+<div class="dropdown" id="menuBox">
+<button onclick="startSelection('delete')">Delete</button>
+<button onclick="startSelection('approve')">Approve</button>
+</div>
+
+<!-- ACTION BUTTONS -->
+<div class="action-bar" id="actionBar">
+<button class="delete-btn" onclick="confirmDelete()">Delete Selected</button>
+<button class="approve-btn" onclick="confirmApprove()">Approve Selected</button>
+</div>
+
+<div id="list"></div>
+
+<script>
+
+let actionType = "";
+
+/* Toggle menu */
+function toggleMenu(){
+let m = document.getElementById("menuBox");
+m.style.display = (m.style.display === "block") ? "none" : "block";
+}
+
+/* Start selection mode */
+function startSelection(type){
+actionType = type;
+
+document.body.classList.add("select-mode");
+document.getElementById("actionBar").style.display = "block";
+
+toggleMenu();
+}
+
+/* Load rejected */
+function loadRejected(){
+
+let data = JSON.parse(localStorage.getItem("rejectedCandidates")) || [];
+
+let html = "";
+
+data.forEach((c,i)=>{
+
+html += `
+<div class="card">
+
+<input type="checkbox" class="selectBox" data-index="${i}">
+
+<img src="${c.photo || 'https://via.placeholder.com/100'}">
+
+<div class="details">
+
+<h3>${c.name}</h3>
+<p><b>Age:</b> ${c.age}</p>
+<p><b>Address:</b> ${c.address}</p>
+<p><b>Qualification:</b> ${c.qualification}</p>
+<p><b>Symbol:</b> ${c.symbol}</p>
+
+</div>
+
+</div>
+`;
+
+});
+
+document.getElementById("list").innerHTML = html;
+
+}
+
+/* Get selected */
+function getSelectedIndexes(){
+let boxes = document.querySelectorAll(".selectBox:checked");
+let arr = [];
+
+boxes.forEach(b=>{
+arr.push(parseInt(b.getAttribute("data-index")));
+});
+
+return arr;
+}
+
+/* DELETE */
+function confirmDelete(){
+
+let rejected = JSON.parse(localStorage.getItem("rejectedCandidates")) || [];
+let selected = getSelectedIndexes();
+
+if(selected.length === 0){
+alert("Select candidates");
+return;
+}
+
+selected.sort((a,b)=>b-a);
+
+selected.forEach(i=>{
+rejected.splice(i,1);
+});
+
+localStorage.setItem("rejectedCandidates", JSON.stringify(rejected));
+
+resetMode();
+}
+
+/* APPROVE (move back) */
+function confirmApprove(){
+
+let rejected = JSON.parse(localStorage.getItem("rejectedCandidates")) || [];
+let candidates = JSON.parse(localStorage.getItem("candidates")) || [];
+
+let selected = getSelectedIndexes();
+
+if(selected.length === 0){
+alert("Select candidates");
+return;
+}
+
+selected.sort((a,b)=>b-a);
+
+selected.forEach(i=>{
+let c = rejected[i];
+c.approved = true;
+candidates.push(c);
+rejected.splice(i,1);
+});
+
+localStorage.setItem("candidates", JSON.stringify(candidates));
+localStorage.setItem("rejectedCandidates", JSON.stringify(rejected));
+
+resetMode();
+}
+
+/* Reset UI */
+function resetMode(){
+document.body.classList.remove("select-mode");
+document.getElementById("actionBar").style.display = "none";
+loadRejected();
+}
+
+</script>
+
+</body>
+</html>

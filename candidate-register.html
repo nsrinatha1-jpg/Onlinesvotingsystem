@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Register Candidate</title>
+
+<link rel="stylesheet" href="style.css">
+
+<style>
+
+body{
+font-family:Arial;
+margin:0;
+padding:0;
+background:linear-gradient(to right,#48b07c,#d9accb);
+height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+}
+
+/* 🔙 BACK BUTTON */
+.back-btn{
+position:fixed;
+top:20px;
+left:20px;
+padding:8px 18px;
+background:#2a7be4;
+color:white;
+border:none;
+border-radius:6px;
+cursor:pointer;
+font-size:14px;
+z-index:1000;
+}
+
+.back-btn:hover{
+background:#1c5fc1;
+}
+
+.container{
+background:white;
+padding:30px;
+width:420px;
+border-radius:10px;
+box-shadow:0px 5px 15px rgba(0,0,0,0.2);
+text-align:center;
+}
+
+h1{
+text-align:center;
+color:white;
+position:absolute;
+top:40px;
+width:100%;
+}
+
+h2{
+margin-bottom:20px;
+}
+
+.form-row{
+display:flex;
+gap:10px;
+margin-bottom:12px;
+}
+
+.form-row input{
+flex:1;
+padding:10px;
+border:1px solid #ccc;
+border-radius:5px;
+}
+
+.full{
+width:100%;
+padding:10px;
+border:1px solid #ccc;
+border-radius:5px;
+margin-bottom:12px;
+}
+
+button{
+background:#4da6ff;
+border:none;
+color:white;
+padding:10px 25px;
+border-radius:5px;
+font-size:16px;
+cursor:pointer;
+}
+
+button:hover{
+background:#2d8cf0;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- 🔙 BACK BUTTON -->
+<button class="back-btn" onclick="window.location.href='admin.html'">
+← Back
+</button>
+
+<h1 style="color: black;">Candidate Registration</h1>
+<br>
+
+<div class="container">
+
+<h2>Register Candidate</h2>
+
+<!-- Age + Name -->
+<div class="form-row">
+<input id="age" type="number" placeholder="Age">
+<input id="name" type="text" placeholder="Candidate Name">
+</div>
+
+<!-- Symbol + Qualification -->
+<div class="form-row">
+<input id="symbol" type="text" placeholder="Symbol">
+<input id="qualification" type="text" placeholder="Qualification">
+</div>
+
+<!-- Password -->
+<input id="password" class="full" type="password" placeholder="Password">
+
+<!-- Address -->
+<input id="address" class="full" type="text" placeholder="Address">
+
+<!-- Photo -->
+<input id="photo" class="full" type="file">
+
+<br>
+
+<button type="button" onclick="addCandidate()">Register</button>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Voting Page</title>
+
+<style>
+body{
+margin:0;
+font-family:Arial;
+background:linear-gradient(135deg,#1e1e2f,#2c3e50);
+color:white;
+overflow:hidden;
+}
+
+.main{
+display:flex;
+justify-content:space-between;
+align-items:flex-start;
+height:100vh;
+padding:20px;
+box-sizing:border-box;
+}
+
+.left{
+width:60%;
+height:100vh;
+overflow-y:auto;
+padding-right:10px;
+}
+
+.card{
+background:#3c4454;
+padding:20px;
+margin:20px;
+border-radius:12px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+box-shadow:0 5px 15px rgba(0,0,0,0.4);
+}
+
+.card-left{
+display:flex;
+align-items:center;
+gap:20px;
+}
+
+.card img{
+width:80px;
+height:80px;
+border-radius:50%;
+}
+
+.vote-btn{
+padding:10px 20px;
+background:#4facfe;
+border:none;
+border-radius:6px;
+color:white;
+cursor:pointer;
+}
+
+.vote-btn:disabled{
+background:gray;
+cursor:not-allowed;
+}
+
+.right{
+width:350px;
+background:#3c4454;
+padding:30px;
+border-radius:15px;
+text-align:center;
+box-shadow:0 10px 30px rgba(0,0,0,0.5);
+position:sticky;
+top:20px;
+height:fit-content;
+}
+
+input{
+width:100%;
+padding:12px;
+margin:10px 0;
+border-radius:8px;
+border:none;
+}
+
+.login-btn{
+padding:12px;
+width:150px;
+background:linear-gradient(45deg,#4facfe,#00f2fe);
+border:none;
+border-radius:8px;
+color:white;
+cursor:pointer;
+}
+
+.logout-btn{
+position:fixed;
+top:20px;
+right:20px;
+padding:10px 18px;
+background:#ff4d4d;
+border:none;
+border-radius:8px;
+color:white;
+cursor:pointer;
+font-weight:bold;
+z-index:1000;
+}
+</style>
+</head>
+
+<body onload="initPage()">
+
+<button class="logout-btn" onclick="logout()">Logout</button>
+
+<div class="main">
+
+<div class="left" id="candidateList"></div>
+
+<div class="right">
+
+<h2>Voter Login</h2>
+
+<input type="text" placeholder="Enter your Name" id="name">
+<input type="text" placeholder="Enter Aadhaar Number" id="aadhaar">
+
+<button class="login-btn" id="loginBtn" onclick="startVoting()">Start Voting</button>
+
+</div>
+
+</div>
+
+<script>
+
+/* INIT PAGE */
+function initPage(){
+loadCandidates();
+
+let voter = localStorage.getItem("currentVoter");
+if(voter){
+enableVoting();
+}
+}
+
+/* LOAD CANDIDATES */
+function loadCandidates(){
+
+let candidates = JSON.parse(localStorage.getItem("candidates")) || [];
+let html = "";
+
+candidates.forEach((c,i)=>{
+
+if(c.approved){
+
+html += `
+<div class="card">
+
+<div class="card-left">
+<img src="${c.photo || 'https://via.placeholder.com/80'}">
+
+<div>
+<h3>${c.name}</h3>
+<p><b>Age:</b> ${c.age}</p>
+<p><b>Address:</b> ${c.address}</p>
+<p><b>Qualification:</b> ${c.qualification}</p>
+<p><b>Symbol:</b> ${c.symbol}</p>
+</div>
+</div>
+
+<button class="vote-btn" onclick="vote(${i})" disabled>
+Vote
+</button>
+
+</div>
+`;
+}
+
+});
+
+document.getElementById("candidateList").innerHTML = html;
+}
+
+/* LOGIN */
+function startVoting(){
+
+let name = document.getElementById("name").value.trim();
+let aadhaar = document.getElementById("aadhaar").value.trim();
+
+if(name==="" || aadhaar===""){
+alert("Fill all details");
+return;
+}
+
+if(aadhaar.length !== 12 || isNaN(aadhaar)){
+alert("Enter valid Aadhaar");
+return;
+}
+
+/* CHECK ALREADY VOTED */
+let votedList = JSON.parse(localStorage.getItem("votedList")) || [];
+
+if(votedList.includes(String(aadhaar))){
+alert("You already voted");
+return;
+}
+
+/* SAVE CURRENT VOTER */
+localStorage.setItem("currentVoter", String(aadhaar));
+
+/* SAVE VOTER LIST */
+let voters = JSON.parse(localStorage.getItem("voters")) || [];
+
+if(!voters.find(v => v.aadhaar === aadhaar)){
+voters.push({name, aadhaar});
+localStorage.setItem("voters", JSON.stringify(voters));
+}
+
+/* ENABLE VOTING BUTTONS */
+enableVoting();
+
+alert("Login successful. You can vote now.");
+}
+
+function enableVoting(){
+document.querySelectorAll(".vote-btn").forEach(btn=>{
+btn.disabled = false;
+});
+}
+
+/* VOTE */
+function vote(index){
+
+let voter = localStorage.getItem("currentVoter");
+
+if(!voter){
+alert("Login first");
+return;
+}
+
+let votedList = JSON.parse(localStorage.getItem("votedList")) || [];
+
+if(votedList.includes(voter)){
+alert("You already voted");
+return;
+}
+
+if(!confirm("Are you sure you want to vote?")){
+return;
+}
+
+let candidates = JSON.parse(localStorage.getItem("candidates")) || [];
+
+candidates[index].votes = (candidates[index].votes || 0) + 1;
+
+localStorage.setItem("candidates", JSON.stringify(candidates));
+
+votedList.push(voter);
+localStorage.setItem("votedList", JSON.stringify(votedList));
+
+alert("Your vote is successful");
+
+/* RESET */
+localStorage.removeItem("currentVoter");
+
+document.getElementById("name").value = "";
+document.getElementById("aadhaar").value = "";
+
+document.querySelectorAll(".vote-btn").forEach(btn=>btn.disabled = true);
+}
+
+/* LOGOUT */
+function logout(){
+localStorage.removeItem("currentVoter");
+window.location.href = "index.html";
+}
+
+</script>
+
+</body>
+</html>

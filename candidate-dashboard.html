@@ -1,0 +1,134 @@
+<!DOCTYPE html> 
+<html>
+<head>
+<title>Candidate Dashboard</title>
+
+<style>
+
+body{
+font-family:Arial;
+margin:0;
+background:linear-gradient(135deg,#1e1e2f,#2c3e50);
+color:white;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+
+/* Main box */
+.container{
+background:#3c4454;
+padding:30px;
+width:350px;
+border-radius:15px;
+text-align:center;
+box-shadow:0 10px 30px rgba(0,0,0,0.5);
+}
+
+/* Image */
+img{
+width:100px;
+height:100px;
+border-radius:50%;
+margin-bottom:10px;
+}
+
+/* Button */
+button{
+margin-top:15px;
+padding:10px;
+width:150px;
+border:none;
+border-radius:8px;
+background:linear-gradient(45deg,#4facfe,#00f2fe);
+color:white;
+cursor:pointer;
+font-weight:bold;
+}
+
+button:hover{
+opacity:0.9;
+}
+
+/* Logout button */
+.logout-btn{
+position:fixed;
+bottom:20px;
+right:20px;
+width:120px;
+background:#ff4d4d;
+}
+
+.logout-btn:hover{
+background:#cc0000;
+}
+
+</style>
+
+</head>
+
+<body onload="loadProfile()">
+
+<div class="container">
+<div id="profile"></div>
+</div>
+
+<button class="logout-btn" onclick="logout()">Logout</button>
+
+<script>
+
+function loadProfile(){
+
+let c = JSON.parse(localStorage.getItem("loggedCandidate"));
+
+if(!c){
+alert("Login first");
+window.location.href="index.html";
+return;
+}
+
+document.getElementById("profile").innerHTML = `
+<img src="${c.photo || 'https://via.placeholder.com/100'}">
+
+<h2>${c.name}</h2>
+
+<p><b>Age:</b> ${c.age}</p>
+<p><b>Address:</b> ${c.address}</p>
+<p><b>Qualification:</b> ${c.qualification}</p>
+<p><b>Symbol:</b> ${c.symbol}</p>
+
+<button onclick="showResult()">View Result</button>
+
+<hr>
+<h3 id="voteBox" style="display:none;">Votes: 0</h3>
+`;
+}
+
+function showResult(){
+
+let logged = JSON.parse(localStorage.getItem("loggedCandidate"));
+let candidates = JSON.parse(localStorage.getItem("candidates")) || [];
+
+/* ✅ FIND LATEST DATA */
+let updated = candidates.find(c => c.name === logged.name);
+
+/* ✅ UPDATE VOTES */
+let votes = updated ? (updated.votes || 0) : 0;
+
+/* ✅ SHOW ONLY ONCE + UPDATE */
+let voteBox = document.getElementById("voteBox");
+voteBox.style.display = "block";
+voteBox.innerText = "Votes: " + votes;
+
+}
+
+function logout(){
+localStorage.removeItem("loggedCandidate");
+window.location.href = "index.html";
+}
+
+</script>
+
+</body>
+</html>

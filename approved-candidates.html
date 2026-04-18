@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Approved Candidates</title>
+
+<style>
+
+body{
+font-family:Arial;
+margin:0;
+background:linear-gradient(to right,#ebefed,#e6f2e6);
+}
+
+/* 🔙 BACK BUTTON */
+.back-btn{
+position:fixed;
+top:20px;
+left:20px;
+padding:8px 18px;
+background:#2a7be4;
+color:white;
+border:none;
+border-radius:6px;
+cursor:pointer;
+font-size:14px;
+z-index:1000;
+}
+
+.back-btn:hover{
+background:#1c5fc1;
+}
+
+h1{
+text-align:center;
+padding:20px;
+}
+
+/* Menu */
+.menu{
+position:absolute;
+top:20px;
+right:30px;
+font-size:24px;
+cursor:pointer;
+}
+
+.dropdown{
+display:none;
+position:absolute;
+top:50px;
+right:30px;
+background:white;
+box-shadow:0 0 10px rgba(0,0,0,0.2);
+border-radius:6px;
+overflow:hidden;
+}
+
+.dropdown button{
+display:block;
+width:150px;
+padding:10px;
+border:none;
+background:white;
+cursor:pointer;
+text-align:left;
+}
+
+.dropdown button:hover{
+background:#f0f0f0;
+}
+
+/* List */
+#list{
+width:80%;
+margin:auto;
+}
+
+.card{
+display:flex;
+align-items:center;
+background:white;
+margin:25px 0;
+padding:20px;
+border-radius:10px;
+box-shadow:0 0 10px rgba(0,0,0,0.2);
+position:relative;
+}
+
+/* Checkbox hidden by default */
+.selectBox{
+display:none;
+position:absolute;
+top:15px;
+left:15px;
+transform:scale(1.2);
+}
+
+/* Show when selection mode ON */
+.select-mode .selectBox{
+display:block;
+}
+
+.card img{
+width:120px;
+height:120px;
+border-radius:50%;
+object-fit:cover;
+margin-right:20px;
+margin-left:30px;
+}
+
+.details{
+flex:1;
+}
+
+/* Action bar */
+.action-bar{
+display:none;
+text-align:center;
+margin:20px;
+}
+
+.action-bar button{
+margin:5px;
+padding:10px 20px;
+border:none;
+border-radius:5px;
+cursor:pointer;
+}
+
+.delete-btn{ background:red; color:white; }
+.reject-btn{ background:orange; color:white; }
+
+</style>
+
+</head>
+
+
+<body onload="loadApproved()">
+
+<button class="back-btn" onclick="window.location.href='admin.html'">
+← Back
+</button>
+
+<h1>Approved Candidates</h1>
+
+<!-- MENU -->
+<div class="menu" onclick="toggleMenu()">⋮</div>
+
+<div class="dropdown" id="menuBox">
+<button onclick="startSelection('delete')">Delete</button>
+<button onclick="startSelection('reject')">Reject</button>
+</div>
+
+<!-- ACTION BUTTONS -->
+<div class="action-bar" id="actionBar">
+<button class="delete-btn" onclick="confirmDelete()">Delete Selected</button>
+<button class="reject-btn" onclick="confirmReject()">Reject Selected</button>
+</div>
+
+<div id="list"></div>
+
+
+<script src="script.js"></script>
+
+<script>
+
+let actionType = ""; // delete or reject
+
+function toggleMenu(){
+let menu = document.getElementById("menuBox");
+menu.style.display = (menu.style.display === "block") ? "none" : "block";
+}
+
+/* START SELECTION MODE */
+function startSelection(type){
+actionType = type;
+
+document.body.classList.add("select-mode"); // show checkboxes
+document.getElementById("actionBar").style.display = "block";
+
+toggleMenu();
+}
+
+/* LOAD */
+function loadApproved(){
+
+let candidates = JSON.parse(localStorage.getItem("candidates")) || [];
+
+let html="";
+
+candidates.forEach((c,i)=>{
+
+if(c.approved){
+
+html+=`
+<div class="card">
+
+<input type="checkbox" class="selectBox" data-index="${i}">
+
+<img src="${c.photo || 'https://via.placeholder.com/120'}">
+
+<div class="details">
+
+<h2>${c.name}</h2>
+
+<p><b>Age:</b> ${c.age}</p>
+<p><b>Address:</b> ${c.address}</p>
+<p><b>Qualification:</b> ${c.qualification}</p>
+<p><b>Symbol:</b> ${c.symbol}</p>
+
+</div>
+
+</div>
+`;
+
+}
+
+});
+
+document.getElementById("list").innerHTML = html;
+
+}
+
+/* GET SELECTED */
+function getSelectedIndexes(){
+let boxes = document.querySelectorAll(".selectBox:checked");
+let indexes = [];
+
+boxes.forEach(box=>{
+indexes.push(parseInt(box.getAttribute("data-index")));
+});
+
+return indexes;
+}
+
+/* CONFIRM DELETE */
+function confirmDelete(){
+
+let candidates = JSON.parse(localStorage.getItem("candidates")) || [];
+let selected = getSelectedIndexes();
+
+if(selected.length === 0){
+alert("Select candidates");
+return;
+}
+
+selected.sort((a,b)=>b-a);
+
+selected.forEach(i=>{
+candidates.splice(i,1);
+});
+
+localStorage.setItem("candidates", JSON.stringify(candidates));
+
+resetMode();
+}
+
+/* CONFIRM REJECT */
+function confirmReject(){
+
+let candidates = JSON.parse(localStorage.getItem("candidates")) || [];
+let rejected = JSON.parse(localStorage.getItem("rejectedCandidates")) || [];
+
+let selected = getSelectedIndexes();
+
+if(selected.length === 0){
+alert("Select candidates");
+return;
+}
+
+selected.sort((a,b)=>b-a);
+
+selected.forEach(i=>{
+rejected.push(candidates[i]);
+candidates.splice(i,1);
+});
+
+localStorage.setItem("candidates", JSON.stringify(candidates));
+localStorage.setItem("rejectedCandidates", JSON.stringify(rejected));
+
+resetMode();
+}
+
+/* RESET UI */
+function resetMode(){
+document.body.classList.remove("select-mode");
+document.getElementById("actionBar").style.display = "none";
+loadApproved();
+}
+
+</script>
+
+</body>
+
+</html>
